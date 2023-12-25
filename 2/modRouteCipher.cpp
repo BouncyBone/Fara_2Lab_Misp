@@ -3,17 +3,18 @@
 #include <stdexcept>
 #include <ctype.h>
 #include <stdio.h>
+#include <locale>
 
 
 modRouteCipher::modRouteCipher(const int& skey, const std::wstring& text)
 {
-	int key = getValidKey(skey, text);
+
 }
 
 std::wstring modRouteCipher::encrypt(const std::wstring& open_text, const int& key){ 
 	std::wstring open_text_1 = getValidOpenText(open_text);
 	std::wstring cypher_text;
-	int key_1 = key;
+	int key_1 = getValidKey(key, open_text);
 	for(int i = 0; i < key;i++){ //Столбцы
 		for(int x = 0; x<=int (open_text_1.size()/key);x++){ //Строки
 			if (key_1 >int (open_text.size())){
@@ -49,15 +50,15 @@ std::wstring modRouteCipher::decrypt(const std::wstring& cypher_text, const int&
 inline int modRouteCipher::getValidKey(const int& key, const std::wstring& text)
 { 
 	std::wstring s = std::to_wstring(key);
+	if (s.empty())
+		throw cipher_error("Empty key");
+	if (key<0)
+		throw cipher_error("Key must be positive");
+	if (key>text.size())
+		throw cipher_error("Key value too large");
 	for (auto c:s) {
-		if (s.empty())
-			throw cipher_error("Empty key");
-		if (isalpha(c))
+		if (!isdigit(static_cast<char>(c + '0')))
 			throw cipher_error(("Invalid key "));
-		if (c<0)
-			throw cipher_error("Ключ должен быть положительным");
-		if (key>text.size())
-			throw cipher_error("Слишком большое значение ключа");
 	}
 	return key;
 }
